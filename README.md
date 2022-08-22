@@ -4,9 +4,9 @@ Image analysis platform to study morphologies and curvatures during cell-cell in
 This code is released as part of the following publication - PLEASE CITE UPON USE:
 
 
-T cell cytoskeletal forces shape synapse topography for targeted lysis via membrane curvature bias of perforin
+"T cell cytoskeletal forces shape synapse topography for targeted lysis via membrane curvature bias of perforin"
 
-Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
+by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
 
 Developmental Cell (2022) [In press]
 
