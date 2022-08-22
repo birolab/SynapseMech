@@ -2,7 +2,7 @@
 %   Export_SynapseMech: Exports Surface and Spot coordinates and save as
 %   *.mat-file
 % 
-%   Copyright Daryan Kempe, 2018, UNSW Sydney
+%   Copyright Daryan Kempe, 2018-2022, UNSW Sydney
 %   Last Update: 2020-11-30 (MT export included)
 %   Last Update: 2020-12-01 (Target intensity export included)
 %  Installation:
