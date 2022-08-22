@@ -1,5 +1,5 @@
- %% SynapseMech
-% Daryan Kempe, UNSW Sydney, 2020
+%% SynapseMech
+% Daryan Kempe, UNSW Sydney, 2020-2022
 
 clear all 
    
@@ -10,7 +10,6 @@ clear all
 SWITCH_HR='off';
 FACTOR=1; %(Smaller values will improve distance/Synapse estimation but will increase running time)
 THRESH_DIST=2;
-DEX_RADIUS=10;
 SWITCH_PLOT='on';
 
 
