@@ -1,5 +1,27 @@
 %% SynapseMech
-% Daryan Kempe, UNSW Sydney, 2020-2022
+%
+%    Copyright Daryan Kempe, 2018-2022, UNSW Sydney
+%    email: d (dot) kempe (at) unsw (dot) edu (dot) au
+
+
+%%  Description:
+%
+%   Input: *_ExportSynapseMech.mat-file 
+%   created with Imaris XT "Export_SynapseMech"
+ 
+
+%% Citation
+
+%  If you use ExportSynapseMech and SynapseMech successfully for your research, 
+%  please be so kind to cite our work:
+
+%  "T cell cytoskeletal forces shape synapse topography for targeted lysis
+%  via membrane curvature bias of perforin"
+%
+%  by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
+%
+%  Developmental Cell (2022) [In press]
+
 
 clear all 
    
@@ -7,10 +29,7 @@ clear all
 
 %% USER INPUT
 
-SWITCH_HR='off';
-FACTOR=1; %(Smaller values will improve distance/Synapse estimation but will increase running time)
-THRESH_DIST=2;
-SWITCH_PLOT='on';
+INTERFACE_LIMIT=sqrt(3); %Voxel Diagonal
 
 
 %% LOAD AND CHECK INPUT
@@ -28,11 +47,11 @@ if iscell(FileNames)
  
 if isempty(Input{i}.DataOut.Cytoplasm)&&isempty(Input{i}.DataOut.Lifeact)
  
-     error('Surface 1 missing! No Synapse determination possible')
+     error('Surface 1 missing! Cell-cell interface determination not possible')
      
  elseif isempty(Input{i}.DataOut.Target)
      
-     error('Surface 2 missing! No Synapse determination possible')
+     error('Surface 2 missing! Cell-cell interface determination not possible')
      
  else
      
@@ -55,11 +74,11 @@ else
  
 if isempty(Input{i}.DataOut.Cytoplasm)&&isempty(Input{i}.DataOut.Lifeact)
  
-     error('Surface 1 missing! No Synapse determination possible')
+     error('Surface 1 missing! Cell-cell interface determination not possible')
      
  elseif isempty(Input{i}.DataOut.Target)
      
-     error('Surface 2 missing! No Synapse determination possible')
+     error('Surface 2 missing! Cell-cell interface determination not possible')
      
  else
      
@@ -72,44 +91,33 @@ end
 
 
 %% Retrieve Surface and Spots coordinates
-    
+ 
 [SURF,SPOTS]=CoordinatesFun(Input,NO_FILES);
 
 %% Determine Tail Length
 
-TAIL_LENGTH=Tail_lengthFun(Input,SURF,NO_FILES);
+[TAIL_LENGTH, TAIL_VOLUME, TIMEOFCONTACT]=Tail_lengthFun(Input,SURF,NO_FILES);
 
-%% Determine Synapse (direct and with erosion)
+%% Create high-res surfaces and determine cell-cell-interface
+%  based on binary mask overlap
 
-[SURFHR,SYNAPSEHR,SURFHR_ER,SYNAPSEHR_ER]=Synapse_findFun(SURF,NO_FILES,FACTOR,THRESH_DIST);
-
-%% Determine Synapse area (direct and with erosion)
-%AREA{i,1}: eroded Synapse 1
-%AREA{i,2}: eroded Synapse 2
-%AREA{i,3}: non-eroded Synapse 1
-%AREA{i,3}: non-eroded Synapse 2
-
-AREA=Synapse_AreaFun(SYNAPSEHR, SYNAPSEHR_ER,SURFHR,SURFHR_ER,NO_FILES);
+[SURFHR,SYNAPSEHR]=Synapse_findFun(SURF,NO_FILES,INTERFACE_LIMIT);
 
 
-%% Determine Volume between Synapses
-%VOL_BOUND{i,1}: eroded Synapse %ALT captures enclosed volume better 
-%VOL_BOUND{i,2}: non-eroded Synapse
+%% Determine Synapse area
 
-VOL_BOUND=VOL_BOUND_Fun(SYNAPSEHR_ER,SYNAPSEHR,NO_FILES); 
+%AREA{i,1}: Interface 1
+%AREA{i,2}: Interface 2
 
-%% Determine Dextran signal in central point between Synapses
+[AREA, SYNAPSE_FACES]=Synapse_AreaFun(SYNAPSEHR,SURFHR,NO_FILES);
 
-DEXTRAN_INT=DET_DEXTR_Fun(SYNAPSEHR_ER,NO_FILES,DEX_RADIUS,Input,SURF,VOL_BOUND);
+%% Determine curvature of low-res surface and map to high res synapse
 
-%% Determine curvature of low-res surface and map to high res surface
-% OPTION: Determine curvature of high-res surface (not recommended)
+[SURFCURVATURE,SYNAPSECURVATURE]=Curvature_detFun(SURF,SYNAPSEHR,NO_FILES);
 
-[CMean,CGauss,CMeanHR,CGaussHR,CMean_Map,CMean_ER_Map]=Curvature_detFun(SURF,NO_FILES,SURFHR,SYNAPSEHR,SYNAPSEHR_ER,SWITCH_HR);
+%% Determine distances of spots to synapses and degranulation pockets and curvatures at degranulation pockets
 
-%% Determine distances of spots to T Cell Synapse (all, negative curvature)
-
-DIST_SPOTS=DIST_DET_Fun(SYNAPSEHR,SYNAPSEHR_ER, SPOTS,CMean_Map,CMean_ER_Map,NO_FILES);
+[DISTANCES,CURVATURES,DEGRANULATIONPOCKETS]=DIST_DET_Fun(SPOTS,SYNAPSEHR, SYNAPSECURVATURE, NO_FILES);
 
 %% Save result
 
@@ -117,82 +125,38 @@ for i=1:NO_FILES
     
 FileNameSave{i}= [FileMerge{i}(1:end-23) '_Analysis_SynapseMech.mat'];
 
-OUTPUT.TCELL_IN.VERT=SURF{i,1};
+OUTPUT.SURF{i,1}=SURF{i,1};
+OUTPUT.SURF{i,2}=SURF{i,2};
+OUTPUT.SURF{i,3}=SURF{i,3};
 
-OUTPUT.TARGET_IN.VERT=SURF{i,2};
-OUTPUT.TARGET_IN.INTENSITY=Input{i}.DataOut.Target{1,10};
+OUTPUT.SPOTS{i}=SPOTS{i};
 
-if ~isnan(Input{i}.DataOut.Target{1,11})
-OUTPUT.TARGET_IN.PI_INTENSITY = Input{i}.DataOut.Target{1,11};
-else
-  OUTPUT.TARGET_IN.PI_INTENSITY = NaN;
-end
-
-OUTPUT.TCELL_OUT.TAIL=TAIL_LENGTH{i};
-
-OUTPUT.TCELL_OUT.CMEAN=CMean{i,1};
-OUTPUT.TCELL_OUT.CGAUSS=CGauss{i,1};
-
-OUTPUT.TCELL_OUT.SURFHR=SURFHR{i,1};
-OUTPUT.TCELL_OUT.SURFHR_ER=SURFHR_ER{i,1};
-
-switch SWITCH_HR 
-    case 'on'
-OUTPUT.TCELL_OUT.SURFHR.CMEAN_HR=CMeanHR{i,1};
-OUTPUT.TCELL_OUT.SURFHR.CGAUSS_HR=CGaussHR{i,1};
-    case 'off'
-     OUTPUT.TCELL_OUT.SURFHR.CMEAN_HR=[];
-OUTPUT.TCELL_OUT.SURFHR.CGAUSS_HR=[];
-end
-
-OUTPUT.TCELL_OUT.SYNAPSEHR=SYNAPSEHR{i,1};
-OUTPUT.TCELL_OUT.SYNAPSEHR_ER=SYNAPSEHR_ER{i,1};
-
-OUTPUT.TCELL_OUT.SYNAPSEHR.AREA=AREA{i,3};
-OUTPUT.TCELL_OUT.SYNAPSEHR_ER.AREA=AREA{i,1};
+OUTPUT.TAIL_LENGTH{i}=TAIL_LENGTH{i};
+OUTPUT.TAIL_VOLUME{i}=TAIL_VOLUME{i};
+OUTPUT.TIMEOFCONTACT(i)=TIMEOFCONTACT(i);
 
 
+OUTPUT.SURFHR{i,1}=SURFHR{i,1};
+OUTPUT.SURFHR{i,2}=SURFHR{i,2};
 
-OUTPUT.TCELL_OUT.SYNAPSEHR.CMEAN_HR=CMean_Map{i,1};
-OUTPUT.TCELL_OUT.SYNAPSEHR_ER.CMEAN_HR_ER=CMean_ER_Map{i,1};
+OUTPUT.SYNAPSEHR{i,1}=SYNAPSEFHR{i,1};
+OUTPUT.SYNAPSEHR{i,2}=SYNAPSEHR{i,2};
 
+OUTPUT.AREA{i,1}=AREA{i,1};
+OUTPUT.AREA{i,2}=AREA{i,2};
 
-OUTPUT.TARGET_OUT.CMEAN=CMean{i,2};
-OUTPUT.TARGET_OUT.CGAUSS=CGauss{i,2};
+OUTPUT.SYNAPSE_FACES{i,1}=SYNAPSE_FACES{i,1};
+OUTPUT.SYNAPSE_FACES{i,2}=SYNAPSE_FACES{i,2};
 
-OUTPUT.TARGET_OUT.SURFHR=SURFHR{i,2};
-OUTPUT.TARGET_OUT.SURFHR_ER=SURFHR_ER{i,2};
+OUTPUT.SURFCURVATURE{i,1}=SURFCURVATURE{i,1};
+OUTPUT.SURFCURVATURE{i,2}=SURFCURVATURE{i,2};
 
-switch SWITCH_HR 
-    case 'on'
-OUTPUT.TARGET_OUT.SURFHR.CMEAN_HR=CMeanHR{i,2};
-OUTPUT.TARGET_OUT.SURFHR.CGAUSS_HR=CGaussHR{i,2};
-   case 'off'
-     OUTPUT.TARGET_OUT.SURFHR.CMEAN_HR=[];
-OUTPUT.TARGET_OUT.SURFHR.CGAUSS_HR=[];
-end
+OUTPUT.SYNAPSECURVATURE{i,1}=SYNAPSECURVATURE{i,1};
+OUTPUT.SYNAPSECURVATURE{i,2}=SYNAPSECURVATURE{i,2};
 
-
-
-OUTPUT.TARGET_OUT.SYNAPSEHR=SYNAPSEHR{i,2};
-OUTPUT.TARGET_OUT.SYNAPSEHR_ER=SYNAPSEHR_ER{i,2};
-
-OUTPUT.TARGET_OUT.SYNAPSEHR_ER.AREA_ER=AREA{i,2};
-OUTPUT.TARGET_OUT.SYNAPSEHR.AREA=AREA{i,4};
-
-
-OUTPUT.TARGET_OUT.SYNAPSEHR.CMEAN_HR=CMean_Map{i,2};
-OUTPUT.TARGET_OUT.SYNAPSEHR_ER.CMEAN_HR_ER=CMean_ER_Map{i,2};
-
-
-OUTPUT.VOLUME.SYNAPSEHR_ER=VOL_BOUND{i,1};
-OUTPUT.VOLUME.SYNAPSEHR=VOL_BOUND{i,2};
-
-OUTPUT.DEXTRAN=DEXTRAN_INT{i};
-OUTPUT.DIST_SPOTS=DIST_SPOTS{i};
-OUTPUT.SPOTS=SPOTS{i};
-
-
+OUTPUT.DISTANCES{i}=DISTANCES{i};
+OUTPUT.CURVATURES{i}=CURVATURES{i};
+OUTPUT.DEGRANULATIONPOCKETS{i}=DEGRANULATIONPOCKETS{i};
 
 save(FileNameSave{i},'OUTPUT','-v7.3')
   
