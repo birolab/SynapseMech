@@ -1,6 +1,9 @@
 # SynapseMech
 SynapseMech is an image analysis platform to study morphologies and curvatures during cell-cell interactions.
 
+It was developed with a focus on imaging data generated with a dual-pipette-aspiration setup, but is also applicable to
+other 3D cell-cell interaction scenarios. 
+
 This code is released as part of the following publication - PLEASE CITE UPON USE:
 
 
