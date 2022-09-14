@@ -1,4 +1,4 @@
-%%   Export_SynapseMech: 
+%%   : 
 %
 %    Copyright Daryan Kempe, 2018-2022, UNSW Sydney
 %    email: d (dot) kempe (at) unsw (dot) edu (dot) au
@@ -6,7 +6,7 @@
 
 %%  Description:
 %
-%   Exports Surfaces and Spots Coordinates from Imaris for further analysis
+%   Export_SynapseMech is an Imairs XTension that exports Surfaces and Spots Coordinates from Imaris for further analysis
 %   with SynapseMech.m
 %   Output saved as *.mat-file
 
