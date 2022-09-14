@@ -4,7 +4,7 @@ SynapseMech is an image analysis platform to study morphologies and curvatures d
 It was developed with a focus on imaging data generated with a dual-pipette-aspiration setup, but is also applicable to
 other 3D cell-cell interaction scenarios. 
 
-Export_SynapseMech.m is a Bitplane Imaris XT used to export the segmented imaging data in a format compatible with SynapseMech.m.
+Export_SynapseMech.m is a Bitplane Imaris XTension used to export the segmented imaging data in a format compatible with SynapseMech.m.
 At this stage it is only compatible with Imaris 8.4.1 (or earlier versions). 
 
 All of this code is released as part of the following publication - PLEASE CITE UPON USE:
