@@ -1,11 +1,49 @@
+%%   Export_SynapseMech: 
 %
-%   Export_SynapseMech: Exports Surface and Spot coordinates and save as
-%   *.mat-file
-% 
-%   Copyright Daryan Kempe, 2018-2022, UNSW Sydney
-%   Last Update: 2020-11-30 (MT export included)
-%   Last Update: 2020-12-01 (Target intensity export included)
-%  Installation:
+%    Copyright Daryan Kempe, 2018-2022, UNSW Sydney
+%    email: d (dot) kempe (at) unsw (dot) edu (dot) au
+
+
+%%  Description:
+%
+%   Exports Surfaces and Spots Coordinates from Imaris for further analysis
+%   with SynapseMech.m
+%   Output saved as *.mat-file
+
+%   Surfaces and underlying channels need to be named with one of the four options:
+%
+%   - "Lifeact"
+%   - "Cytoplasm" (this should be the surface the curvature maps will be
+%      determined with; it should either be based on membrane marker (recommended) or a cytoplasmic dye signal)
+%   - "Target" 
+%   - "PI"
+%   
+%   to be exported. 
+%   For each surface type, only one surface must be created per time
+%   point! 
+
+%   Spots need to be named with one of the two options:
+%
+%   - "Granules" 
+%   - "PipetteTip" (spots indicating pipette tip position must only be added at time point of first
+%      contact between cells)
+%
+%   to be exported  
+
+%% Citation
+
+%  If you use ExportSynapseMech and SynapseMech successfully for your research, 
+%  please be so kind to cite our work:
+
+%  "T cell cytoskeletal forces shape synapse topography for targeted lysis
+%  via membrane curvature bias of perforin"
+%
+%  by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
+%
+%  Developmental Cell (2022) [In press]
+
+
+%%   Installation:
 %
 %  - Copy this file into the XTensions folder in the Imaris installation directory
 %  - You will find this function in the Image Processing menu
@@ -28,13 +66,7 @@
 %      </SurpassTab>
 %     </CustomTools>
 
-%
-%
-%  Description:
-%
-%   Exports Surfaces and Spots Coordinates from Imaris. Output saved as
-%   *.mat-file
-%
+
 
 
 function  Export_SynapseMech(aImarisApplicationID)
@@ -75,19 +107,30 @@ end
 
 
 %% Data dimensions
-DataC = vDataSet.GetSizeC;
-DataT = vDataSet.GetSizeT;
+
+DataC = vDataSet.GetSizeC; 
+DataT = vDataSet.GetSizeT; 
+
 DataX = vDataSet.GetSizeX;
 DataMinX = vDataSet.GetExtendMinX(); DataMaxX = vDataSet.GetExtendMaxX();
+
 DataY = vDataSet.GetSizeY;
 DataMinY = vDataSet.GetExtendMinY(); DataMaxY = vDataSet.GetExtendMaxY();
+
 DataZ = vDataSet.GetSizeZ;
 DataMinZ = vDataSet.GetExtendMinZ(); DataMaxZ = vDataSet.GetExtendMaxZ();
+
 DataVoxelX = (DataMaxX-DataMinX)/DataX;
 DataVoxelY = (DataMaxY-DataMinY)/DataY;
 DataVoxelZ = (DataMaxZ-DataMinZ)/DataZ;
-DataBitDepth = vDataSet.GetType; % can do: strcmp(DataBitDepth, 'eTypeUInt8') or strcmp(DataBitDepth, 'eTypeUInt16')
-DataUnit = vDataSet.GetUnit; % can do: strcmp(DataUnit, 'um')
+
+DataBitDepth = vDataSet.GetType;
+DataUnit = vDataSet.GetUnit; 
+
+%% Assign channel numbers to channel names 
+
+% Channel name options: Lifeact, Cytoplasm, Target, PI
+
 
 for m=0:DataC-1
 
@@ -117,19 +160,7 @@ for m=0:DataC-1
 
                 PI_Channel=m;
                 
-                
-                case 'Microtubules'
-                    
-             MT_Channel=m;
-                
-            case 'Dextran'
-                
-                Dextran_Channel=m;
-                
-                for k=1:DataT
-                
-                DataOut.DextranInt{k}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Dextran_Channel,k-1));
-                end
+               
  
         end
 
@@ -137,6 +168,7 @@ end
 
 
 %% Get Surpass Tree structure and items
+
 if vFactory.IsDataContainer(vSurpassScene) % if there is a top level Surpass Scene
     NrSurpassItems = vSurpassScene.GetNumberOfChildren; % Get number of Surpass Scene items
     
@@ -148,22 +180,28 @@ if vFactory.IsDataContainer(vSurpassScene) % if there is a top level Surpass Sce
     end
     clear n;
 end
+
 clear NrSurpassItems;
 
 
 %% Surface T cell and target cell %%
-% object in the Surpass tree to work with
+
+% Find surface objects in the Surpass tree 
+% Options are Lifeact, Cytoplasm, Target, PI
+
 SurfaceSurpassItemsIndex = find([SurpassTree{:,2}]'== 9 );
 
 if length(SurfaceSurpassItemsIndex)<1
  msgbox('You have to create at least one surface', 'Export', 'error');
 else
+     
 
 for n=1:numel(SurfaceSurpassItemsIndex)
 
 switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
     
     case 'Lifeact'
+        
            Lifeact_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
            Lifeact=vImarisApplication.GetFactory.ToSurfaces(Lifeact_Sel);
            LifeactNrSurfaces=Lifeact.GetNumberOfSurfaces;
@@ -174,6 +212,7 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
            LifeactSelSurf = Lifeact.GetSelectedIndices;
            
     case 'Cytoplasm'
+        
          Cytoplasm_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
          Cytoplasm=vImarisApplication.GetFactory.ToSurfaces(Cytoplasm_Sel);
          CytoplasmNrSurfaces=Cytoplasm.GetNumberOfSurfaces;
@@ -183,21 +222,8 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
          CytoplasmNrTracks = numel(unique(CytoplasmTrackIDs));
          CytoplasmSelSurf = Cytoplasm.GetSelectedIndices;
          
-         
-         
-         
-         case 'Microtubules'
-           MT_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
-           MT=vImarisApplication.GetFactory.ToSurfaces(MT_Sel);
-           MTNrSurfaces=MT.GetNumberOfSurfaces;
-           MT.SetSelectedIndices(0:MTNrSurfaces-1);
-           MTTrackIDs = MT.GetTrackIds;
-           MTTrackEdges = MT.GetTrackEdges;
-           MTNrTracks = numel(unique(MTTrackIDs));
-           MTSelSurf = MT.GetSelectedIndices;
-
-         
     case 'Target'
+        
          Target_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
          Target=vImarisApplication.GetFactory.ToSurfaces(Target_Sel);
          TargetNrSurfaces=Target.GetNumberOfSurfaces;
@@ -207,37 +233,8 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
          TargetNrTracks = numel(unique(TargetTrackIDs));
          TargetSelSurf = Target.GetSelectedIndices;
          
-         TargetIDs=Target.GetIds;
-         TargetStatsAll = Target.GetStatistics;
-         TargetStats =cell(TargetStatsAll.mNames); 
-         TargetStats(:,2)=num2cell(TargetStatsAll.mValues);
-         TargetStats(:,3)=num2cell(TargetStatsAll.mIds);
-         
-        %INDALL_Target=strfind(TargetStats(:,1),'Intensity Sum');
-        IND_Target=find(contains(cell(TargetStatsAll.mNames),'Intensity Sum')); 
-        %IND_Target=find(not(cellfun('isempty',INDALL_Target)));
-         IntensityValAll_Target=TargetStats(IND_Target,2);
-         IntensityIDsAll_Target=TargetStats(IND_Target,3);
-
-  
-          INDEX_SEL_Target=Target_Channel+1:(DataC):(DataC*TargetNrSurfaces);
-   
-         IntensitySum_Target=IntensityValAll_Target(INDEX_SEL_Target);
-         
-         Test=exist('PI_Channel');
-         
-         if Test~=0
-  
-         INDEX_SEL_PI=PI_Channel+(1:(DataC):DataC*TargetNrSurfaces);
-
-
-         IntensitySum_PI=IntensityValAll_Target(INDEX_SEL_PI);
-         else
-            IntensitySum_PI={NaN};
-         end
-          
-         
     case 'PI'
+        
         PI_Sel=vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
         PI=vImarisApplication.GetFactory.ToSurfaces(PI_Sel);
         PINrSurfaces=PI.GetNumberOfSurfaces;
@@ -247,53 +244,45 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
         PINrTracks = numel(unique(PITrackIDs));
         PISelSurf = PI.GetSelectedIndices;
         
-        
-        
-        
-        
-   case 'Granules'
-       
-        Granules_Sel=vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
-        Granules=vImarisApplication.GetFactory.ToSurfaces(Granules_Sel);
-        GranulesNrSurfaces=Granules.GetNumberOfSurfaces;
-        Granules.SetSelectedIndices(0:GranulesNrSurfaces-1);
-        GranulesTrackIDs = Granules.GetTrackIds;
-        GranulesTrackEdges =Granules.GetTrackEdges;
-        GranulesNrTracks = numel(unique(GranulesTrackIDs));
-        GranulesSelSurf = Granules.GetSelectedIndices;
-        
-        
+             
     otherwise
+        
         msgbox('Surface name error! Options are: Lifeact, Cytoplasm, Target, PI', 'Export', 'error'); 
+
 end
              
 end
 end
-%              
+
+
+%% Set mask sampling factor
+
+% Mask will be exported with voxel size:
+% Vox_New=Vox_Original/MaskSampling
+
 MaskSamplingX=3;
-MaskSamplingY=3;
-MaskSamplingZ=7.5;
-
-
+MaskSamplingY=MaskSamplingX;
+MaskSamplingZ=MaskSamplingX*DataVoxelZ/DataVoxelX; %make voxels isotropic
 
 aSizeX=MaskSamplingX*DataX; %increase surface mask sampling by factor MaskSamplingX
 aSizeY=MaskSamplingY*DataY; %increase surface mask sampling by factor MaskSamplingY
 aSizeZ=MaskSamplingZ*DataZ; %increase surface mask sampling by factor MaskSamplingZ
 
+%% Get surface data
+
 DataOut.Lifeact=[];
 DataOut.Cytoplasm=[];
 DataOut.Target=[];
-DataOut.Microtubules=[];
 DataOut.PI=[];
-DataOut.Granules=[];
+
 DataOut.SpotsPipetteTip=[];
 DataOut.SpotsGranules=[];
-DataOut.SpotsPipetteTip2=[];
 
 
 if exist('LifeactSelSurf')
     
 for k=1:length(LifeactSelSurf)
+    
 DataOut.Lifeact{k,1} = double(Lifeact.GetVertices(LifeactSelSurf(k)));
 DataOut.Lifeact{k,2}=double(LifeactSelSurf(k,1));
 DataOut.Lifeact{k,3}=double(Lifeact.GetTimeIndex(LifeactSelSurf(k)));
@@ -306,6 +295,7 @@ DataOut.Lifeact{k,7}=double([DataMinX,DataMinY,DataMinZ]);
 DataOut.Lifeact{k,8}=double(Lifeact.GetNormals(LifeactSelSurf(k)));
 DataOut.Lifeact{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
 DataOut.Lifeact{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Lifeact_Channel,k-1)); 
+
 end
 else
 end
@@ -313,6 +303,7 @@ end
 if exist('CytoplasmSelSurf')
     
 for k=1:length(CytoplasmSelSurf)
+    
 DataOut.Cytoplasm{k,1} = double(Cytoplasm.GetVertices(CytoplasmSelSurf(k)));
 DataOut.Cytoplasm{k,2}=double(CytoplasmSelSurf(k,1));
 DataOut.Cytoplasm{k,3}=double(Cytoplasm.GetTimeIndex(CytoplasmSelSurf(k)));
@@ -329,34 +320,10 @@ end
 else
 end
 
-
-if exist('MTSelSurf')
-    
-for k=1:length(MTSelSurf)
-DataOut.MT{k,1} = double(MT.GetVertices(MTSelSurf(k)));
-DataOut.MT{k,2}=double(MTSelSurf(k,1));
-DataOut.MT{k,3}=double(MT.GetTimeIndex(MTSelSurf(k)));
-DataOut.MT{k,4}=double(MT.GetTriangles(MTSelSurf(k)));
-MT_MASK= MT.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ, MT.GetTimeIndex(MTSelSurf(k)));
-MT_MASK.SetType(Imaris.tType.eTypeUInt8);
-DataOut.MT{k,5} = MT_MASK.GetDataVolumeBytes(0, 0);
-DataOut.MT{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
-DataOut.MT{k,7}=double([DataMinX,DataMinY,DataMinZ]);
-DataOut.MT{k,8}=double(MT.GetNormals(MTSelSurf(k)));
-DataOut.MT{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
-DataOut.MT{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(MT_Channel,k-1)); 
-end
-else
-end
-
-
-
-
-
-
 if exist('TargetSelSurf')
     
 for k=1:length(TargetSelSurf)
+    
 DataOut.Target{k,1} = double(Target.GetVertices(TargetSelSurf(k)));
 DataOut.Target{k,2}=double(TargetSelSurf(k,1));
 DataOut.Target{k,3}=double(Target.GetTimeIndex(TargetSelSurf(k)));
@@ -368,9 +335,7 @@ DataOut.Target{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
 DataOut.Target{k,7}=double([DataMinX,DataMinY,DataMinZ]);
 DataOut.Target{k,8}=double(Target.GetNormals(TargetSelSurf(k)));
 DataOut.Target{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
-DataOut.Target{k,10}=double(cell2mat(IntensitySum_Target(:)));
-DataOut.Target{k,11}=double(cell2mat(IntensitySum_PI(:)));
-DataOut.Target{k,12}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Target_Channel,k-1)); 
+DataOut.Target{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Target_Channel,k-1)); 
 
 end
 else
@@ -396,27 +361,11 @@ else
 end
 
 
-if exist('GranulesSelSurf')
-    
-for k=1:length(GranulesSelSurf)
-DataOut.Granules{k,1} = double(Granules.GetVertices(GranulesSelSurf(k)));
-DataOut.Granules{k,2}=double(GranulesSelSurf(k,1));
-DataOut.Granules{k,3}=double(Granules.GetTimeIndex(GranulesSelSurf(k)));
-DataOut.Granules{k,4}=double(Granules.GetTriangles(GranulesSelSurf(k)));
-Granules_MASK= Granules.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ,Granules.GetTimeIndex(GranulesSelSurf(k)));
-Granules_MASK.SetType(Imaris.tType.eTypeUInt8);
-DataOut.Granules{k,5} = Granules_MASK.GetDataVolumeBytes(0, 0);
-DataOut.Granules{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
-DataOut.Granules{k,7}=double([DataMinX,DataMinY,DataMinZ]);
-DataOut.Granules{k,8}=double(Granules.GetNormals(GranulesSelSurf(k)));
-DataOut.Granules{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
-end
-else
-end
-
 
 %% Spots %%
-% Spots object in the Surpass tree to work with
+% Find spots objects in the Surpass tree 
+% Options are Granules and Pipette Tip
+
 SpotsSurpassItemsIndex = find( [SurpassTree{:,2}]'== 8 );
 
 if isempty(SpotsSurpassItemsIndex)
@@ -435,20 +384,13 @@ SpotsPipetteTipXYZ(:,4) = double(vSpotsPipetteTip.GetIds);
 SpotsPipetteTipXYZ(:,5)=double(vSpotsPipetteTip.GetIndicesT);
 DataOut.SpotsPipetteTip=SpotsPipetteTipXYZ;
 
- case 'TailSpots'
-    
-SpotsTail = vSurpassScene.GetChild(SpotsSurpassItemsIndex(n)-1); 
-vSpotsTail = vImarisApplication.GetFactory.ToSpots(SpotsTail);
-SpotsTailOut(:,1:3) = double(vSpotsTail.GetPositionsXYZ);
-SpotsTailOut(:,4)=double(vSpotsTail.GetIds);
-SpotsTailOut(:,5)=double(vSpotsTail.GetIndicesT);
-DataOut.SpotsTail=SpotsTailOut;
+
 
 
             case 'Granules'
                 
- SpotsGranules = vSurpassScene.GetChild(SpotsSurpassItemsIndex(n)-1);  
- vSpotsGranules = vImarisApplication.GetFactory.ToSpots(SpotsGranules);
+SpotsGranules = vSurpassScene.GetChild(SpotsSurpassItemsIndex(n)-1);  
+vSpotsGranules = vImarisApplication.GetFactory.ToSpots(SpotsGranules);
 SpotsEdgesGranules=vSpotsGranules.GetTrackEdges;
 SpotsEdgesIDGranules = vSpotsGranules.GetTrackIds;
 
@@ -458,20 +400,10 @@ SpotsOut(:,5)=double(vSpotsGranules.GetIndicesT);
 SpotsOut(:,6)=double(vSpotsGranules.GetRadii);
 DataOut.SpotsGranules=SpotsOut;
 
-            case 'PipetteTip2'
-     SpotsPipetteTip2 = vSurpassScene.GetChild(SpotsSurpassItemsIndex(n)-1); 
-vSpotsPipetteTip2 = vImarisApplication.GetFactory.ToSpots(SpotsPipetteTip2);
-SpotsPipetteTip2XYZ(:,1:3) = double(vSpotsPipetteTip2.GetPositionsXYZ);
-DataOut.SpotsPipetteTip2=SpotsPipetteTip2XYZ;           
-                
-
         end
 
     end
 end
-
-
-
 
 
 
@@ -523,27 +455,3 @@ else
 end
 end
 
-
-
-
-
-% function NrTracks = GetNumberTracks(SurfObj, ImarisApp)
-% if ~ImarisApp.GetFactory.IsSurfaces(SurfObj)
-%     error('GetNumberTracks passed a non-Surfaces obiect');
-% end;
-% 
-% edges = SurfObj.GetTrackEdges;
-% NrTracks = 0;
-% if isempty(edges)
-%     return;
-% else
-%     NrTracks = 1;
-%     for n=2 : size(edges,1)
-%         if edges(n,1) < edges(n-1,1)
-%             NrTracks = NrTracks + 1;
-%         end;
-%     end;
-% end;
-
-
-    
