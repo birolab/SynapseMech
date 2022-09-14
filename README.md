@@ -1,5 +1,5 @@
 # SynapseMech
-Image analysis platform to study morphologies and curvatures during cell-cell interactions
+SynapseMech is an image analysis platform to study morphologies and curvatures during cell-cell interactions.
 
 This code is released as part of the following publication - PLEASE CITE UPON USE:
 
