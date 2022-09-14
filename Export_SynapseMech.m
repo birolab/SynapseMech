@@ -6,7 +6,7 @@
 
 %%  Description:
 %
-%   Export_SynapseMech is an Imairs XTension that exports Surfaces and Spots Coordinates from Imaris for further analysis
+%   Export_SynapseMech is an Imaris XTension that exports Surfaces and Spots Coordinates from Imaris for further analysis
 %   with SynapseMech.m
 %   Output saved as *.mat-file
 
