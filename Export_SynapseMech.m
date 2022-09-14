@@ -10,13 +10,13 @@
 %   with SynapseMech.m
 %   Output saved as *.mat-file
 
-%   Surfaces and underlying channels need to be named with one of the four options:
+%   Surfaces and underlying channels need to be named with one of the three options:
 %
 %   - "Lifeact"
 %   - "Cytoplasm" (this should be the surface the curvature maps will be
 %      determined with; it should either be based on membrane marker (recommended) or a cytoplasmic dye signal)
 %   - "Target" 
-%   - "PI"
+%   
 %   
 %   to be exported. 
 %   For each surface type, only one surface must be created per time
@@ -154,11 +154,6 @@ for m=0:DataC-1
         
                 Target_Channel=m;
         
-       
-            case 'PI'
-           
-
-                PI_Channel=m;
                 
                
  
@@ -233,21 +228,11 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
          TargetNrTracks = numel(unique(TargetTrackIDs));
          TargetSelSurf = Target.GetSelectedIndices;
          
-    case 'PI'
-        
-        PI_Sel=vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
-        PI=vImarisApplication.GetFactory.ToSurfaces(PI_Sel);
-        PINrSurfaces=PI.GetNumberOfSurfaces;
-        PI.SetSelectedIndices(0:PINrSurfaces-1);
-        PITrackIDs = PI.GetTrackIds;
-        PITrackEdges =PI.GetTrackEdges;
-        PINrTracks = numel(unique(PITrackIDs));
-        PISelSurf = PI.GetSelectedIndices;
         
              
     otherwise
         
-        msgbox('Surface name error! Options are: Lifeact, Cytoplasm, Target, PI', 'Export', 'error'); 
+        msgbox('Surface name error! Options are: Lifeact, Cytoplasm, Target', 'Export', 'error'); 
 
 end
              
@@ -273,7 +258,7 @@ aSizeZ=MaskSamplingZ*DataZ; %increase surface mask sampling by factor MaskSampli
 DataOut.Lifeact=[];
 DataOut.Cytoplasm=[];
 DataOut.Target=[];
-DataOut.PI=[];
+
 
 DataOut.SpotsPipetteTip=[];
 DataOut.SpotsGranules=[];
@@ -337,25 +322,6 @@ DataOut.Target{k,8}=double(Target.GetNormals(TargetSelSurf(k)));
 DataOut.Target{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
 DataOut.Target{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Target_Channel,k-1)); 
 
-end
-else
-end
-
-
-if exist('PISelSurf')
-    
-for k=1:length(PISelSurf)
-DataOut.PI{k,1} = double(PI.GetVertices(PISelSurf(k)));
-DataOut.PI{k,2}=double(PISelSurf(k,1));
-DataOut.PI{k,3}=double(PI.GetTimeIndex(PISelSurf(k)));
-DataOut.PI{k,4}=double(PI.GetTriangles(PISelSurf(k)));
-PI_MASK= PI.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ,PI.GetTimeIndex(PISelSurf(k)));
-PI_MASK.SetType(Imaris.tType.eTypeUInt8);
-DataOut.PI{k,5} = PI_MASK.GetDataVolumeBytes(0, 0);
-DataOut.PI{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
-DataOut.PI{k,7}=double([DataMinX,DataMinY,DataMinZ]);
-DataOut.PI{k,8}=double(PI.GetNormals(PISelSurf(k)));
-DataOut.PI{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
 end
 else
 end
