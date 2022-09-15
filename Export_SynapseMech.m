@@ -45,9 +45,7 @@
 %
 %   to be exported  
 
-%  Please also have a look at 
 
- 
 
 
 %%   Installation:
