@@ -16,8 +16,9 @@ At this stage it is only compatible with Imaris 8.4.1 (or earlier versions).
 Information on how the imaging data needs to be prepared using Imaris is given in the Export_SynapseMech.m script, 
 and can also be found in the Export_SynapseMech_SegmentationExample.png.
 
-
-
+To run successfully, SynapseMech.m requires the scripts located in the SynapseMechSub folder. 
+Therefore, the SynapseMechSub folder must either be located in the same directory as SynapseMech.m, 
+or must be added to the Matlab search path by the user.
 
 
 Code is provided under the GNU General Public Licence version 3.0 as part of the above publication. Please cite upon use.
