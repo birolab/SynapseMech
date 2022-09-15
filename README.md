@@ -10,8 +10,9 @@ At this stage it is only compatible with Imaris 8.4.1 (or earlier versions).
 Information on how the imaging data needs to be prepared using Imaris is given in the Export_SynapseMech.m script, 
 and can also be found in the ExampleCurvatureMap_Segmentation.png.
 
-
-
+ExampleCurvatureMap_Export_SynapseMech.mat is an example output created with Export_SynapseMech.m to then be analysed using
+SynapseMech.m. Use it as an input for SynapseMechDemo.m to see how outputs like curvature maps, degranulation pockets or tail volume curves 
+can be retrieved and visualised.
 
 All of this code is released as part of the following publication - PLEASE CITE UPON USE:
 
