@@ -7,7 +7,7 @@ This code was released as part of the following publication - PLEASE CITE UPON U
 by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
 Developmental Cell (2022) [In press]
 
-It was developed with a focus on imaging data generated with a dual-pipette-aspiration setup, but is also applicable to
+SynapseMech was developed with a focus on imaging data generated with a dual-pipette-aspiration setup, but is also applicable to
 other 3D cell-cell interaction scenarios. 
 
 Export_SynapseMech.m is a Bitplane Imaris XTension used to export the segmented imaging data in a format compatible with SynapseMech.m.
