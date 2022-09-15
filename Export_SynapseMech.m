@@ -1,38 +1,11 @@
-%%   Export_SynapseMech: 
+%% Export_SynapseMech: 
 %
 %    Copyright Daryan Kempe, 2018-2022, UNSW Sydney
 %    email: d (dot) kempe (at) unsw (dot) edu (dot) au
 
-
-%%  Description:
-%
-%   Exports Surfaces and Spots Coordinates from Imaris for further analysis
-%   with SynapseMech.m
-%   Output saved as *.mat-file
-
-%   Surfaces and underlying channels need to be named with one of the three options:
-%
-%   - "Lifeact"
-%   - "Cytoplasm" (this should be the surface the curvature maps will be
-%      determined with; it should either be based on membrane marker (recommended) or a cytoplasmic dye signal)
-%   - "Target" 
-%   
-%   
-%   to be exported. 
-%   For each surface type, only one surface must be created per time
-%   point! 
-
-%   Spots need to be named with one of the two options:
-%
-%   - "Granules" 
-%   - "PipetteTip" (spots indicating pipette tip position must only be added at time point of first
-%      contact between cells)
-%
-%   to be exported  
-
 %% Citation
 
-%  If you use ExportSynapseMech and SynapseMech successfully for your research, 
+%  If you use ExportSynapseMech and SynapseMech for your research, 
 %  please be so kind to cite our work:
 
 %  "T cell cytoskeletal forces shape synapse topography for targeted lysis
@@ -41,6 +14,40 @@
 %  by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
 %
 %  Developmental Cell (2022) [In press]
+
+
+%%  Description:
+%
+%   Export_SynapseMech is an Imaris XTension that exports 
+%   Surfaces and Spots Coordinates from Imaris for further analysis
+%   with SynapseMech.m
+
+%   The output is saved as an *_Export_SynapseMech.mat-file in the same
+%   folder as the *.ims file.
+
+%   In Imaris, surfaces and corresponding channels need to be named with one of 
+%   the three options:
+%
+%   - "Factin"
+%   - "Effector" (this should be the surface the curvature maps will be
+%      determined with; it should either be based on plasma membrane marker (recommended) or a cytoplasmic signal)
+%   - "Target" 
+
+%   to be exported. For each surface type, only one (!) surface must be created per time
+%   point! 
+  
+
+%   Spots need to be named with one of the two options:
+%
+%   - "Granules" 
+%   - "PipetteTip" (spots indicating pipette tip position must only 
+%      be added at time point of first contact (!) between cells)
+%
+%   to be exported  
+
+%  Please also have a look at 
+
+ 
 
 
 %%   Installation:
@@ -138,15 +145,15 @@ for m=0:DataC-1
         
         switch ChannelName
             
-            case 'Lifeact'
+            case 'Factin'
                 
-                Lifeact_Channel=m;
+                Factin_Channel=m;
         
       
-            case 'Cytoplasm'
+            case 'Effector'
            
         
-                Cytoplasm_Channel=m;
+                Effector_Channel=m;
         
        
             case 'Target'
@@ -182,7 +189,7 @@ clear NrSurpassItems;
 %% Surface T cell and target cell %%
 
 % Find surface objects in the Surpass tree 
-% Options are Lifeact, Cytoplasm, Target, PI
+% Options are Factin, Effector, Target
 
 SurfaceSurpassItemsIndex = find([SurpassTree{:,2}]'== 9 );
 
@@ -195,27 +202,27 @@ for n=1:numel(SurfaceSurpassItemsIndex)
 
 switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
     
-    case 'Lifeact'
+    case 'Factin'
         
-           Lifeact_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
-           Lifeact=vImarisApplication.GetFactory.ToSurfaces(Lifeact_Sel);
-           LifeactNrSurfaces=Lifeact.GetNumberOfSurfaces;
-           Lifeact.SetSelectedIndices(0:LifeactNrSurfaces-1);
-           LifeactTrackIDs = Lifeact.GetTrackIds;
-           LifeactTrackEdges = Lifeact.GetTrackEdges;
-           LifeactNrTracks = numel(unique(LifeactTrackIDs));
-           LifeactSelSurf = Lifeact.GetSelectedIndices;
+           Factin_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
+           Factin=vImarisApplication.GetFactory.ToSurfaces(Factin_Sel);
+           FactinNrSurfaces=Factin.GetNumberOfSurfaces;
+           Factin.SetSelectedIndices(0:FactinNrSurfaces-1);
+           FactinTrackIDs = Factin.GetTrackIds;
+           FactinTrackEdges = Factin.GetTrackEdges;
+           FactinNrTracks = numel(unique(FactinTrackIDs));
+           FactinSelSurf = Factin.GetSelectedIndices;
            
-    case 'Cytoplasm'
+    case 'Effector'
         
-         Cytoplasm_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
-         Cytoplasm=vImarisApplication.GetFactory.ToSurfaces(Cytoplasm_Sel);
-         CytoplasmNrSurfaces=Cytoplasm.GetNumberOfSurfaces;
-         Cytoplasm.SetSelectedIndices(0:CytoplasmNrSurfaces-1);
-         CytoplasmTrackIDs = Cytoplasm.GetTrackIds;
-         CytoplasmTrackEdges = Cytoplasm.GetTrackEdges;
-         CytoplasmNrTracks = numel(unique(CytoplasmTrackIDs));
-         CytoplasmSelSurf = Cytoplasm.GetSelectedIndices;
+         Effector_Sel= vSurpassScene.GetChild(SurfaceSurpassItemsIndex(n)-1);
+         Effector=vImarisApplication.GetFactory.ToSurfaces(Effector_Sel);
+         EffectorNrSurfaces=Effector.GetNumberOfSurfaces;
+         Effector.SetSelectedIndices(0:EffectorNrSurfaces-1);
+         EffectorTrackIDs = Effector.GetTrackIds;
+         EffectorTrackEdges = Effector.GetTrackEdges;
+         EffectorNrTracks = numel(unique(EffectorTrackIDs));
+         EffectorSelSurf = Effector.GetSelectedIndices;
          
     case 'Target'
         
@@ -232,7 +239,7 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
              
     otherwise
         
-        warning('Surface name error! Options are: Lifeact, Cytoplasm, Target'); 
+        warning('Surface name error! Options are: Factin, Effector, Target'); 
         warning('Surfaces with other names will not be processed'); 
 
 
@@ -257,8 +264,8 @@ aSizeZ=MaskSamplingZ*DataZ; %increase surface mask sampling by factor MaskSampli
 
 %% Get surface data
 
-DataOut.Lifeact=[];
-DataOut.Cytoplasm=[];
+DataOut.Factin=[];
+DataOut.Effector=[];
 DataOut.Target=[];
 
 
@@ -266,42 +273,42 @@ DataOut.SpotsPipetteTip=[];
 DataOut.SpotsGranules=[];
 
 
-if exist('LifeactSelSurf')
+if exist('FactinSelSurf')
     
-for k=1:length(LifeactSelSurf)
+for k=1:length(FactinSelSurf)
     
-DataOut.Lifeact{k,1} = double(Lifeact.GetVertices(LifeactSelSurf(k)));
-DataOut.Lifeact{k,2}=double(LifeactSelSurf(k,1));
-DataOut.Lifeact{k,3}=double(Lifeact.GetTimeIndex(LifeactSelSurf(k)));
-DataOut.Lifeact{k,4}=double(Lifeact.GetTriangles(LifeactSelSurf(k)));
-Lifeact_MASK= Lifeact.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ, Lifeact.GetTimeIndex(LifeactSelSurf(k)));
-Lifeact_MASK.SetType(Imaris.tType.eTypeUInt8);
-DataOut.Lifeact{k,5} = Lifeact_MASK.GetDataVolumeBytes(0, 0);
-DataOut.Lifeact{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
-DataOut.Lifeact{k,7}=double([DataMinX,DataMinY,DataMinZ]);
-DataOut.Lifeact{k,8}=double(Lifeact.GetNormals(LifeactSelSurf(k)));
-DataOut.Lifeact{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
-DataOut.Lifeact{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Lifeact_Channel,k-1)); 
+DataOut.Factin{k,1} = double(Factin.GetVertices(FactinSelSurf(k)));
+DataOut.Factin{k,2}=double(FactinSelSurf(k,1));
+DataOut.Factin{k,3}=double(Factin.GetTimeIndex(FactinSelSurf(k)));
+DataOut.Factin{k,4}=double(Factin.GetTriangles(FactinSelSurf(k)));
+Factin_MASK= Lifeact.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ, Factin.GetTimeIndex(FactinSelSurf(k)));
+Factin_MASK.SetType(Imaris.tType.eTypeUInt8);
+DataOut.Factin{k,5} = Factin_MASK.GetDataVolumeBytes(0, 0);
+DataOut.Factin{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
+DataOut.Factin{k,7}=double([DataMinX,DataMinY,DataMinZ]);
+DataOut.Factin{k,8}=double(Factin.GetNormals(FactinSelSurf(k)));
+DataOut.Factin{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
+DataOut.Factin{k,10}=uint16(vImarisApplication.GetDataSet.GetDataVolumeFloats(Factin_Channel,k-1)); 
 
 end
 else
 end
 
-if exist('CytoplasmSelSurf')
+if exist('EffectorSelSurf')
     
-for k=1:length(CytoplasmSelSurf)
+for k=1:length(EffectorSelSurf)
     
-DataOut.Cytoplasm{k,1} = double(Cytoplasm.GetVertices(CytoplasmSelSurf(k)));
-DataOut.Cytoplasm{k,2}=double(CytoplasmSelSurf(k,1));
-DataOut.Cytoplasm{k,3}=double(Cytoplasm.GetTimeIndex(CytoplasmSelSurf(k)));
-DataOut.Cytoplasm{k,4}=double(Cytoplasm.GetTriangles(CytoplasmSelSurf(k)));
-Cytoplasm_MASK= Cytoplasm.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ, Cytoplasm.GetTimeIndex(CytoplasmSelSurf(k)));
-Cytoplasm_MASK.SetType(Imaris.tType.eTypeUInt8);
-DataOut.Cytoplasm{k,5} = Cytoplasm_MASK.GetDataVolumeBytes(0, 0);
-DataOut.Cytoplasm{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
-DataOut.Cytoplasm{k,7}=double([DataMinX,DataMinY,DataMinZ]);
-DataOut.Cytoplasm{k,8}=double(Cytoplasm.GetNormals(CytoplasmSelSurf(k)));
-DataOut.Cytoplasm{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
+DataOut.Effector{k,1} = double(Effector.GetVertices(EffectorSelSurf(k)));
+DataOut.Effector{k,2}=double(EffectorSelSurf(k,1));
+DataOut.Effector{k,3}=double(Effector.GetTimeIndex(EffectorSelSurf(k)));
+DataOut.Effector{k,4}=double(Effector.GetTriangles(EffectorSelSurf(k)));
+Effector_MASK= Effector.GetMask(DataMinX, DataMinY, DataMinZ, DataMaxX, DataMaxY, DataMaxZ, aSizeX,aSizeY,aSizeZ, Effector.GetTimeIndex(EffectorSelSurf(k)));
+Effector_MASK.SetType(Imaris.tType.eTypeUInt8);
+DataOut.Effector{k,5} = Effector_MASK.GetDataVolumeBytes(0, 0);
+DataOut.Effector{k,6}=double([DataVoxelX,DataVoxelY,DataVoxelZ]);
+DataOut.Effector{k,7}=double([DataMinX,DataMinY,DataMinZ]);
+DataOut.Effector{k,8}=double(Effector.GetNormals(EffectorSelSurf(k)));
+DataOut.Effector{k,9}=double([MaskSamplingX,MaskSamplingY,MaskSamplingZ]);
  
 end
 else
