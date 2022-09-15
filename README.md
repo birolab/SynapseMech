@@ -7,7 +7,10 @@ other 3D cell-cell interaction scenarios.
 Export_SynapseMech.m is a Bitplane Imaris XTension used to export the segmented imaging data in a format compatible with SynapseMech.m.
 At this stage it is only compatible with Imaris 8.4.1 (or earlier versions). 
 
-Information on how the imaging data needs to be prepared using Imaris is given in the Export_SynapseMech.m and can also be found in the 
+Information on how the imaging data needs to be prepared using Imaris is given in the Export_SynapseMech.m script, 
+and can also be found in the ExampleCurvatureMap_Segmentation.png.
+
+
 
 
 All of this code is released as part of the following publication - PLEASE CITE UPON USE:
