@@ -129,7 +129,7 @@ DataUnit = vDataSet.GetUnit;
 
 %% Assign channel numbers to channel names 
 
-% Channel name options: Lifeact, Cytoplasm, Target, PI
+% Channel name options: Lifeact, Cytoplasm, Target
 
 
 for m=0:DataC-1
@@ -232,7 +232,9 @@ switch SurpassTree{SurfaceSurpassItemsIndex(n),1}
              
     otherwise
         
-        msgbox('Surface name error! Options are: Lifeact, Cytoplasm, Target', 'Export', 'error'); 
+        warning('Surface name error! Options are: Lifeact, Cytoplasm, Target'); 
+        warning('Surfaces with other names will not be processed'); 
+
 
 end
              
