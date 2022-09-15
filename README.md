@@ -2,7 +2,7 @@
 
 SynapseMech is an image analysis platform to study morphologies and curvatures during cell-cell interactions.
 
-This code was released as part of the following publication - PLEASE CITE UPON USE:
+This code was released as part of the following publication - PLEASE CITE UPON USE:\p
 "T cell cytoskeletal forces shape synapse topography for targeted lysis via membrane curvature bias of perforin"
 by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
 Developmental Cell (2022) [In press]
