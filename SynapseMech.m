@@ -8,11 +8,12 @@
 %
 %   Input: *_ExportSynapseMech.mat-file 
 %   created with Imaris XT "Export_SynapseMech"
- 
+
+%   Output: *_AnalysisSynapseMech.mat-file
 
 %% Citation
 
-%  If you use ExportSynapseMech and SynapseMech successfully for your research, 
+%  If you use ExportSynapseMech and SynapseMech for your research, 
 %  please be so kind to cite our work:
 
 %  "T cell cytoskeletal forces shape synapse topography for targeted lysis
@@ -24,13 +25,14 @@
 
 
 clear all 
+
+addpath SynapseMechSub
    
 [FileNames,PathNames] = uigetfile('*Export_SynapseMech.mat','Select files','MultiSelect','on');
 
 %% USER INPUT
 
 INTERFACE_LIMIT=sqrt(3); %Voxel Diagonal
-
 
 %% LOAD AND CHECK INPUT
 
@@ -45,7 +47,7 @@ if iscell(FileNames)
  Input{i}=load(FileMerge{i});
  
  
-if isempty(Input{i}.DataOut.Cytoplasm)&&isempty(Input{i}.DataOut.Lifeact)
+if isempty(Input{i}.DataOut.Effector)&&isempty(Input{i}.DataOut.Factin)
  
      error('Surface 1 missing! Cell-cell interface determination not possible')
      
@@ -72,7 +74,7 @@ else
  Input{i}=load(FileMerge{i});
  
  
-if isempty(Input{i}.DataOut.Cytoplasm)&&isempty(Input{i}.DataOut.Lifeact)
+if isempty(Input{i}.DataOut.Effector)&&isempty(Input{i}.DataOut.Factin)
  
      error('Surface 1 missing! Cell-cell interface determination not possible')
      
@@ -94,14 +96,18 @@ end
  
 [SURF,SPOTS]=CoordinatesFun(Input,NO_FILES);
 
+%% Find range of frames
+
+FRAMES=FRAMEVEC_Fun(SURF,SPOTS,NO_FILES);
+
 %% Determine Tail Length
 
-[TAIL_LENGTH, TAIL_VOLUME, TIMEOFCONTACT]=Tail_lengthFun(Input,SURF,NO_FILES);
+[TAIL_LENGTH, TAIL_VOLUME, TIMEOFCONTACT]=Tail_lengthFun(Input,SURF,NO_FILES,FRAMES);
 
 %% Create high-res surfaces and determine cell-cell-interface
 %  based on binary mask overlap
 
-[SURFHR,SYNAPSEHR]=Synapse_findFun(SURF,NO_FILES,INTERFACE_LIMIT);
+[SURFHR,SYNAPSEHR]=Synapse_findFun(SURF,NO_FILES,INTERFACE_LIMIT,FRAMES);
 
 
 %% Determine Synapse area
@@ -109,20 +115,23 @@ end
 %AREA{i,1}: Interface 1
 %AREA{i,2}: Interface 2
 
-[AREA, SYNAPSE_FACES]=Synapse_AreaFun(SYNAPSEHR,SURFHR,NO_FILES);
+[AREA, SYNAPSE_FACES]=Synapse_AreaFun(SYNAPSEHR,SURFHR,NO_FILES,FRAMES);
 
 %% Determine curvature of low-res surface and map to high res synapse
 
 [SURFCURVATURE,SYNAPSECURVATURE]=Curvature_detFun(SURF,SYNAPSEHR,NO_FILES);
 
-%% Determine distances of spots to synapses and degranulation pockets and curvatures at degranulation pockets
+%% Determine distances of spots to interface 
+%  Determine location and curvatures of degranulation pockets
 
-[DISTANCES,CURVATURES,DEGRANULATIONPOCKETS]=DIST_DET_Fun(SPOTS,SYNAPSEHR, SYNAPSECURVATURE, NO_FILES);
+[DISTANCES,CURVATURES,DEGRANULATIONPOCKETS]=DIST_DET_Fun(SPOTS,SYNAPSEHR, SYNAPSECURVATURE, NO_FILES,FRAMES);
 
 %% Save result
 
+h = waitbar(0,'Saving output');  
+
 for i=1:NO_FILES
-    
+        
 FileNameSave{i}= [FileMerge{i}(1:end-23) '_Analysis_SynapseMech.mat'];
 
 OUTPUT.SURF{i,1}=SURF{i,1};
@@ -158,7 +167,25 @@ OUTPUT.DISTANCES{i}=DISTANCES{i};
 OUTPUT.CURVATURES{i}=CURVATURES{i};
 OUTPUT.DEGRANULATIONPOCKETS{i}=DEGRANULATIONPOCKETS{i};
 
+
+
 save(FileNameSave{i},'OUTPUT','-v7.3')
+
+waitbar(i/NO_FILES)
   
 end
+
+close(h)
+
+
+
+
+
+
+
+
+
+
+
+
 
