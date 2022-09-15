@@ -129,7 +129,7 @@ DataUnit = vDataSet.GetUnit;
 
 %% Assign channel numbers to channel names 
 
-% Channel name options: Lifeact, Cytoplasm, Target
+% Channel name options: Lifeact, Cytoplasm, Target, PI
 
 
 for m=0:DataC-1
