@@ -1,7 +1,7 @@
 %% SynapseMech
 %
-%    Copyright Daryan Kempe, 2018-2022, UNSW Sydney
-%    email: d (dot) kempe (at) unsw (dot) edu (dot) au
+%   Copyright Daryan Kempe, 2018-2022, UNSW Sydney
+%   email: d (dot) kempe (at) unsw (dot) edu (dot) au
 
 
 %%  Description:
@@ -11,17 +11,16 @@
 
 %   Output: *_AnalysisSynapseMech.mat-file
 
-%% Citation
+%%  Citation
 
-%  If you use ExportSynapseMech and SynapseMech for your research, 
-%  please be so kind to cite our work:
+%   If you use ExportSynapseMech and SynapseMech for your research, 
+%   please be so kind to cite our work:
 
-%  "T cell cytoskeletal forces shape synapse topography for targeted lysis
-%  via membrane curvature bias of perforin"
-%
-%  by Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, and Maté Biro
-%
-%  Developmental Cell (2022) [In press]
+%   Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, Maté Biro,
+%   T cell cytoskeletal forces shape synapse topography for targeted lysis via membrane curvature bias of perforin,
+%   Developmental Cell,2022
+
+%   https://doi.org/10.1016/j.devcel.2022.08.012
 
 
 clear all 
