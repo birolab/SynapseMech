@@ -44,7 +44,12 @@
 %
 %   to be exported  
 
-
+%%  User input
+%
+%   The user needs to select a value for MaskSamplingX..
+%   It defines how much the original surfaces will be upsampled, i.e. if the original
+%   voxel size is [0.3 0.3 1] um and the MaskSamplingX=3, the new voxel size
+%   will be [0.1 0.1 0.1].
 
 %%   Installation:
 %
@@ -73,6 +78,10 @@
 
 
 function  Export_SynapseMech(aImarisApplicationID)
+
+%% USER INPUT: Set mask sampling factor
+
+MaskSamplingX=3;
 
 %% connect to Imaris interface
 
@@ -250,7 +259,6 @@ end
 % Mask will be exported with voxel size:
 % Vox_New=Vox_Original/MaskSampling
 
-MaskSamplingX=3;
 MaskSamplingY=MaskSamplingX;
 MaskSamplingZ=MaskSamplingX*DataVoxelZ/DataVoxelX; %make voxels isotropic
 
