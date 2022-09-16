@@ -22,6 +22,7 @@ Therefore, the SynapseMechSub folder must either be located in the same director
 or must be added to the Matlab search path by the user.
 
 Copyright Daryan Kempe, 2018-2022, UNSW Sydney
+
 email: d (dot) kempe (at) unsw (dot) edu (dot) au
 
 
