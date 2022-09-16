@@ -6,9 +6,7 @@ This code was released as part of the following publication - PLEASE CITE UPON U
 
 Matt A. Govendir, Daryan Kempe, Setareh Sianati, James Cremasco, Jessica K. Mazalo, Feyza Colakoglu, Matteo Golo, Kate Poole, Maté Biro,
 T cell cytoskeletal forces shape synapse topography for targeted lysis via membrane curvature bias of perforin,
-Developmental Cell,2022
-
-https://doi.org/10.1016/j.devcel.2022.08.012
+Developmental Cell,2022. https://doi.org/10.1016/j.devcel.2022.08.012
 
 SynapseMech was developed with a focus on imaging data generated with a dual-pipette-aspiration setup, but is also applicable to
 other 3D cell-cell interaction scenarios. 
